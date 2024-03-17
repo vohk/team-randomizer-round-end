@@ -36,20 +36,17 @@ export default class TeamRandomizerRoundEnd extends BasePlugin {
     this.onRoundEnd = this.onRoundEnd.bind(this);
   }
 
-  // When the plugin is mounted, add event listeners for the trigger command and the round end event.
   async mount() {
     this.server.on(`CHAT_COMMAND:${this.options.command}`, this.onChatCommand);
     this.interval = setInterval(this.broadcast, this.options.interval);
   }
 
-  // When the plugin is unmounted, clear the interval, remove the event listeners, and reset the stop flag.
   async unmount() {
     clearInterval(this.interval);
     this.server.removeEventListener(`CHAT_COMMAND:${this.options.command}`, this.onChatCommand);
     this.server.removeEventListener('ROUND_ENDED', this.onRoundEnd);
   }
 
-  // When the trigger command is used in AdminChat, start listening for the round end event.
   async onChatCommand(info) {
     if (info.chat !== 'ChatAdmin') return;
     this.stop = false;
@@ -57,8 +54,7 @@ export default class TeamRandomizerRoundEnd extends BasePlugin {
     await this.server.on("ROUND_ENDED", this.onRoundEnd);
     return;
   }
-  
-  // When the round ends, randomize teams and broadcast a message.
+
   async onRoundEnd(){
     this.stop = true;
     setTimeout(() => {
@@ -90,7 +86,6 @@ export default class TeamRandomizerRoundEnd extends BasePlugin {
     this.server.rcon.broadcast("The teams have been scrambled!");
   }
 
-  // Broadcast notice of the upcoming team scramble until the round ends.
   async broadcast() {
     if (this.stop) return;
 
