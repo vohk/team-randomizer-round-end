@@ -1,11 +1,11 @@
-import BasePlugin from './base-plugin.js';
+import BasePlugin from "./base-plugin.js";
 
 export default class TeamRandomizerRoundEnd extends BasePlugin {
   static get description() {
     return (
       "The <code>TeamRandomizerRoundEnd</code> randomizes teams at the end of round." +
-      'It broadcasts warnings every 10 minutes by default. It can be run by typing,' +
-      'by default, <code>!randomize</code> into in-game admin chat'
+      "It broadcasts warnings every 10 minutes by default. It can be run by typing," +
+      "by default, <code>!randomize</code> into in-game admin chat"
     );
   }
 
@@ -17,14 +17,14 @@ export default class TeamRandomizerRoundEnd extends BasePlugin {
     return {
       command: {
         required: false,
-        description: 'The command used to randomize the teams.',
-        default: 'randomize'
+        description: "The command used to randomize the teams.",
+        default: "randomize",
       },
       interval: {
         required: false,
-        description: 'Frequency of broadcasts in milliseconds.',
-        default: 10 * 60 * 1000
-      }
+        description: "Frequency of broadcasts in milliseconds.",
+        default: 10 * 60 * 1000,
+      },
     };
   }
 
@@ -38,29 +38,30 @@ export default class TeamRandomizerRoundEnd extends BasePlugin {
 
   async mount() {
     this.server.on(`CHAT_COMMAND:${this.options.command}`, this.onChatCommand);
-    this.interval = setInterval(this.broadcast, this.options.interval);
   }
 
   async unmount() {
-    clearInterval(this.interval);
-    this.server.removeEventListener(`CHAT_COMMAND:${this.options.command}`, this.onChatCommand);
-    this.server.removeEventListener('ROUND_ENDED', this.onRoundEnd);
+    this.server.removeListener(
+      `CHAT_COMMAND:${this.options.command}`,
+      this.onChatCommand
+    );
   }
 
   async onChatCommand(info) {
-    if (info.chat !== 'ChatAdmin') return;
-    this.stop = false;
+    if (info.chat !== "ChatAdmin") return;
+
+    this.verbose(1, "Randomizing teams at the end of the round.");
+    this.broadcast();
+    this.interval = setInterval(
+      this.broadcast.bind(this),
+      this.options.interval
+    );
 
     await this.server.on("ROUND_ENDED", this.onRoundEnd);
     return;
   }
 
-  async onRoundEnd(){
-    this.stop = true;
-    setTimeout(() => {
-      this.stop = false;
-    }, 30 * 1000);
-
+  async onRoundEnd() {
     const players = this.server.players.slice(0);
 
     let currentIndex = players.length;
@@ -76,19 +77,26 @@ export default class TeamRandomizerRoundEnd extends BasePlugin {
       players[randomIndex] = temporaryValue;
     }
 
-    let team = '1';
+    let team = "1";
 
     for (const player of players) {
-      if (player.teamID !== team) await this.server.rcon.switchTeam(player.steamID);
+      if (player.teamID !== team)
+        await this.server.rcon.switchTeam(player.steamID);
 
-      team = team === '1' ? '2' : '1';
+      team = team === "1" ? "2" : "1";
     }
+
+    this.verbose(1, "Teams have been scrambled!");
     this.server.rcon.broadcast("The teams have been scrambled!");
+
+    clearInterval(this.interval);
+    this.server.removeListener("ROUND_ENDED", this.onRoundEnd);
   }
 
   async broadcast() {
-    if (this.stop) return;
-
-    await this.server.rcon.broadcast("Teams will be scrambled at the end of this match!");
+    this.verbose(1, "Broadcasting team scramble warning.");
+    this.server.rcon.broadcast(
+      "Teams will be scrambled at the end of this match!"
+    );
   }
 }
