@@ -8,9 +8,9 @@ This plugin is a modified version of the original Team Randomizer plugin for Squ
 {
   "plugin": "TeamRandomizerRoundEnd",
   "enabled": true,
-  "command": "randomize"
-  "interval": 10 * 6 * 1000
+  "command": "randomize",
+  "interval": 60000
 }
 ```
 
-`command` and `interval` are optional.
+`command` and `interval` are optional. The default warning broadcast interval is 10 minutes.
