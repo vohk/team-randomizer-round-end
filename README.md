@@ -9,7 +9,7 @@ This plugin is a modified version of the original Team Randomizer plugin for Squ
   "plugin": "TeamRandomizerRoundEnd",
   "enabled": true,
   "command": "randomize",
-  "interval": 60000
+  "interval": 600000
 }
 ```
 
