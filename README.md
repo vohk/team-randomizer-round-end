@@ -14,3 +14,6 @@ This plugin is a modified version of the original Team Randomizer plugin for Squ
 ```
 
 `command` and `interval` are optional. The default warning broadcast interval is 10 minutes.
+
+## To Do
+* Replace the sorting algorithm with one that randomly selects half the players on each team and swaps them.
