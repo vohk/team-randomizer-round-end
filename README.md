@@ -1,9 +1,13 @@
 ## Team Randomizer End Round
+This plugin is a modified version of the original Team Randomizer plugin for SquadJS:
+```diff
+- A true random shuffle of all players on the server, anywhere from nobody to everybody.
++ Randomly selects half (rounded up) of each team, and swaps them.
 
-This plugin is a modified version of the original Team Randomizer plugin for SquadJS. Rather than fire immediately, it queues the change for the END_ROUND event and broadcasts every 10 minutes about the upcoming change.
-
+- Fires immediately.
++ Queues the swaps for the end of the match, and broadcasts regular notice.
+```
 ## Configuration
-
 ```json
 {
   "plugin": "TeamRandomizerRoundEnd",
@@ -12,8 +16,4 @@ This plugin is a modified version of the original Team Randomizer plugin for Squ
   "interval": 600000
 }
 ```
-
 `command` and `interval` are optional. The default warning broadcast interval is 10 minutes.
-
-## To Do
-* Replace the sorting algorithm with one that randomly selects half the players on each team and swaps them.
