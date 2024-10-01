@@ -64,26 +64,32 @@ export default class TeamRandomizerRoundEnd extends BasePlugin {
   async onRoundEnd() {
     const players = this.server.players.slice(0);
 
-    let currentIndex = players.length;
-    let temporaryValue;
-    let randomIndex;
+    // Filter players into each team
+    const team1 = players.filter(player => player.teamID == '1');
+    const team2 = players.filter(player => player.teamID == '2');
 
-    while (currentIndex !== 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-
-      temporaryValue = players[currentIndex];
-      players[currentIndex] = players[randomIndex];
-      players[randomIndex] = temporaryValue;
+    // Fisher-Yates shuffle
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
     }
 
-    let team = "1";
+    // Shuffle the teams, rather than just using the unordered array
+    shuffle(team1);
+    shuffle(team2);
 
-    for (const player of players) {
-      if (player.teamID !== team)
-        await this.server.rcon.switchTeam(player.steamID);
+    // Get the first half of each shuffled team
+    const firsthalfTeam1 = team1.slice(0, Math.ceil(team1.length / 2));
+    const firsthalfTeam2 = team2.slice(0, Math.ceil(team2.length / 2));
 
-      team = team === "1" ? "2" : "1";
+    // Combine all players to be swapped
+    const toSwap = firsthalfTeam1.concat(firsthalfTeam2);
+
+    // Iterate through the combined array and send the teamswap commands.
+    for (const player of toSwap) {
+      await this.server.rcon.switchTeam(player.eosID);
     }
 
     this.verbose(1, "Teams have been scrambled!");
